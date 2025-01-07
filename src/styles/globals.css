@@ -1,0 +1,130 @@
+body {
+	background: radial-gradient(circle, #f3c5f3, #b8d8b8, #f3e7a7, #b3a7f7);
+	font-family: 'Pixelify Sans', sans-serif;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	text-align: center;
+}
+
+.container {
+	position: relative;
+	width: 100%;
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.background-image {
+	width: 100%;
+	max-width: 400px;
+	height: auto;
+	margin: 0 auto;
+	display: block;
+	position: relative;
+}
+
+#poem {
+	font-size: 1rem;
+	line-height: 1.4;
+	width: 40%;
+	max-width: 250px;
+	text-align: center;
+	color: #09010b;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 1;
+	padding: 1rem;
+}
+
+#poemImage {
+	animation: glitch 10s infinite ease-in-out;
+	filter: hue-rotate(0deg);
+	cursor: pointer;
+	width: 100%;
+	max-width: 800px;
+	height: auto;
+	display: block;
+	margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+	.container {
+		padding: 10px;
+	}
+
+	.background-image {
+		max-width: 100%;
+		width: 100%;
+	}
+
+	#poem {
+		font-size: 0.8rem;
+		width: 60%;
+		max-width: 180px;
+	}
+}
+
+@media (max-width: 480px) {
+	.container {
+		padding: 5px;
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.background-image {
+		max-width: 100%;
+		width: 100%;
+		margin: 0 auto;
+	}
+
+	#poem {
+		font-size: 0.8rem;
+		width: 60%;
+		max-width: 180px;
+		padding: 0.7rem;
+	}
+}
+
+@keyframes glitch {
+	0% {
+		transform: translate(0);
+		opacity: 1;
+		filter: hue-rotate(0deg);
+	}
+	20% {
+		transform: translate(0);
+		opacity: 1;
+		filter: hue-rotate(30deg);
+	}
+	40% {
+		transform: translate(0);
+		opacity: 1;
+		filter: hue-rotate(-30deg);
+	}
+	60% {
+		transform: translate(0);
+		opacity: 1;
+		filter: hue-rotate(60deg);
+	}
+	80% {
+		transform: translate(0);
+		opacity: 1;
+		filter: hue-rotate(-60deg);
+	}
+	100% {
+		transform: translate(0);
+		opacity: 1;
+		filter: hue-rotate(0deg);
+	}
+}
