@@ -3,7 +3,15 @@
 import Head from 'next/head'
 import { useEffect } from 'react'
 import Image from 'next/image'
+import { Pixelify_Sans } from 'next/font/google'
 import '../styles/globals.css'
+
+// Import the Pixelify Sans font
+const pixelifySans = Pixelify_Sans({
+	subsets: ['latin'],
+	weight: '400', // Adjust based on your needs
+	style: 'normal',
+})
 
 export default function Home() {
 	useEffect(() => {
@@ -198,12 +206,9 @@ export default function Home() {
 		<>
 			<Head>
 				<title>Bloom</title>
-				<link
-					href='https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap'
-					rel='stylesheet'
-				/>
+				{/* No longer needed to link to Google Font as it's being imported via next/font */}
 			</Head>
-			<div className='container'>
+			<div className={`container ${pixelifySans.className}`}>
 				<Image
 					id='poemImage'
 					src='/img/bloom.png'
