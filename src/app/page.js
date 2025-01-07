@@ -6,11 +6,12 @@ import Image from 'next/image'
 import { Pixelify_Sans } from 'next/font/google'
 import '../styles/globals.css'
 
-// Import the Pixelify Sans font
+// imported Pixelify Sans font
 const pixelifySans = Pixelify_Sans({
 	subsets: ['latin'],
-	weight: '400', // Adjust based on your needs
+	weight: ['400'],
 	style: 'normal',
+	display: 'swap',
 })
 
 export default function Home() {
