@@ -1,214 +1,274 @@
 'use client'
 
-import Head from 'next/head'
-import { useEffect } from 'react'
-import Image from 'next/image'
 import { Pixelify_Sans } from 'next/font/google'
+import Head from 'next/head'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import Script from 'next/script'
 import '../styles/globals.css'
 
-// imported Pixelify Sans font
 const pixelifySans = Pixelify_Sans({
 	subsets: ['latin'],
 	weight: ['400'],
-	style: 'normal',
 	display: 'swap',
 })
 
 export default function Home() {
-	useEffect(() => {
-		const darkAdjectives = [
-			'shadowed',
-			'mysterious',
+	const [charRNN, setCharRNN] = useState(null)
+	const [isGenerating, setIsGenerating] = useState(false)
+	const [poem, setPoem] = useState(
+		'Click the image to summon a whimsically gothic poem...'
+	)
+	const [modelLoaded, setModelLoaded] = useState(false)
+	const [ml5Loaded, setMl5Loaded] = useState(false)
+
+	// Vocabulary for fallback poem generation
+	const vocabulary = {
+		adjectives: [
+			'gentle',
+			'radiant',
+			'mystical',
 			'enchanted',
+			'delicate',
+			'luminous',
+			'ethereal',
+			'dreamy',
+			'starlit',
 			'moonlit',
+			'velvet',
+			'crystalline',
+			'shimmering',
+			'iridescent',
+			'gossamer',
 			'twilight',
 			'midnight',
-			'velvet',
-			'ethereal',
-			'spectral',
-			'darkened',
-			'haunted',
-			'dreaming',
-			'glimmering',
-			'starry',
-			'silken',
-			'phantom',
-			'nocturnal',
-			'obscure',
-		]
-		const compliments = [
-			'luminous soul',
-			'brilliant mind',
-			'kind heart',
-			'gentle spirit',
-			'wise dreamer',
-			'resilient heart',
-			'courageous spirit',
-			'radiant aura',
-			'hopeful gaze',
-			'charming smile',
-			'compassionate being',
-			'heart of gold',
-			'soft voice',
-			'graceful presence',
-			'pure light',
-			'glowing essence',
-			'magical heart',
-		]
-		const gothicNouns = [
+			'dawn-touched',
+		],
+		nouns: [
+			'heart',
+			'spirit',
+			'soul',
+			'dream',
+			'light',
+			'angel',
+			'star',
+			'flower',
+			'butterfly',
+			'fairy',
+			'moonbeam',
+			'crystal',
+			'melody',
+			'whisper',
+			'dance',
+			'shadow',
 			'chamber',
-			'mansion',
 			'garden',
-			'tower',
-			'forest',
-			'castle',
-			'sanctuary',
-			'domain',
-			'realm',
-			'kingdom',
-			'cathedral',
-			'grove',
-			'ruins',
-			'hall',
-			'nook',
-			'crypt',
-			'shadowland',
-			'thicket',
-		]
-		const poeticVerbs = [
-			'whispers',
-			'dances',
-			'wanders',
-			'dreams',
-			'lurks',
-			'prances',
-			'floats',
+		],
+		verbs: [
 			'glides',
-			'haunts',
-			'beckons',
-			'slumbers',
-			'frolics',
-			'glimmers',
-			'drifts',
-			'sings',
-			'soars',
-			'weaves',
+			'dances',
+			'floats',
+			'sparkles',
+			'twirls',
+			'gleams',
+			'shimmers',
+			'radiates',
 			'glows',
-		]
-		const darkImagery = [
-			'in shadows deep',
-			'beneath pale moonlight',
-			'through misty veils',
-			"in twilight's embrace",
-			'amidst ancient stones',
-			'through darkened halls',
-			'beneath starry skies',
-			'in forgotten realms',
-			'within ghostly glows',
-			'through mist and fog',
-			'in the quiet of the grove',
-			'where shadows dance',
-		]
+			'whispers',
+			'sings',
+			'dreams',
+			'enchants',
+			'illuminates',
+			'weaves',
+			'embraces',
+		],
+		locations: [
+			'in moonlit gardens fair',
+			'through crystal chambers bright',
+			'midst shadows soft and sweet',
+			'where starlight gently falls',
+			'in twilight tender glow',
+			'through mystic halls of light',
+			'beneath the silver moon',
+			'among the dreaming flowers',
+			'within enchanted bowers',
+			'through veils of midnight blue',
+		],
+		compliments: [
+			'precious heart of gold',
+			'spirit pure and bright',
+			'soul of morning light',
+			'gentle dreaming star',
+			'fairy of delight',
+			'angel of the night',
+			'keeper of sweet dreams',
+			"bringer of joy's gleams",
+			"bearer of love's light",
+			'dancer in starlight',
+		],
+	}
 
-		function getRandomElement(array) {
-			return array[Math.floor(Math.random() * array.length)]
+	const getRandomElement = (array) =>
+		array[Math.floor(Math.random() * array.length)]
+
+	const generatePoemLine = () => {
+		const patterns = [
+			() =>
+				`${getRandomElement(vocabulary.adjectives)} ${getRandomElement(
+					vocabulary.nouns
+				)} ${getRandomElement(vocabulary.verbs)} ${getRandomElement(
+					vocabulary.locations
+				)}`,
+			() =>
+				`Like ${getRandomElement(vocabulary.adjectives)} ${getRandomElement(
+					vocabulary.nouns
+				)}, thou ${getRandomElement(vocabulary.verbs)} ${getRandomElement(
+					vocabulary.locations
+				)}`,
+			() =>
+				`Oh ${getRandomElement(vocabulary.compliments)}, ${getRandomElement(
+					vocabulary.locations
+				)}`,
+			() =>
+				`Through ${getRandomElement(
+					vocabulary.adjectives
+				)} night, thy ${getRandomElement(vocabulary.nouns)} ${getRandomElement(
+					vocabulary.verbs
+				)}`,
+			() =>
+				`Behold! ${getRandomElement(vocabulary.adjectives)} ${getRandomElement(
+					vocabulary.nouns
+				)} that ${getRandomElement(vocabulary.verbs)}`,
+		]
+		return getRandomElement(patterns)()
+	}
+
+	const generateTitle = () => {
+		const patterns = [
+			() =>
+				`To a ${getRandomElement(vocabulary.adjectives)} ${getRandomElement(
+					vocabulary.compliments
+				)}`,
+			() =>
+				`The ${getRandomElement(vocabulary.adjectives)} ${getRandomElement(
+					vocabulary.nouns
+				)}`,
+			() => `Upon Meeting a ${getRandomElement(vocabulary.compliments)}`,
+			() => `Ode to ${getRandomElement(vocabulary.adjectives)} Grace`,
+		]
+		return getRandomElement(patterns)()
+	}
+
+	const generateFallbackPoem = () => {
+		const title = generateTitle()
+		const lines = []
+
+		// Generate 4-6 unique lines
+		const numLines = Math.floor(Math.random() * 3) + 4
+		const usedPatterns = new Set()
+
+		for (let i = 0; i < numLines; i++) {
+			let line
+			let attempts = 0
+			do {
+				line = generatePoemLine()
+				attempts++
+			} while (usedPatterns.has(line) && attempts < 10)
+
+			usedPatterns.add(line)
+			lines.push(line)
 		}
 
-		function generatePoem() {
-			const poemElement = document.getElementById('poem')
-			poemElement.innerHTML =
-				'<span class="loading">Loading your magical poem...</span>'
+		// Add a Poe-inspired ending
+		const endings = [
+			'Forever more, in light divine!',
+			'Till stars fade from above!',
+			'Through endless dreams of thee!',
+			"In beauty's eternal dance!",
+			'Where love and shadows entwine!',
+		]
 
-			setTimeout(() => {
-				let poem = []
-				poem.push(
-					`"${getRandomElement(darkAdjectives)} ${getRandomElement(
-						compliments
-					)}"\n`
-				)
+		return `"${title}"\n\n${lines.join(',\n')},\n${getRandomElement(endings)}`
+	}
 
-				const numLines = Math.floor(Math.random() * 2) + 3
+	// Initialize ML5 model
+	useEffect(() => {
+		if (ml5Loaded && typeof window !== 'undefined' && window.ml5) {
+			const initModel = async () => {
+				try {
+					console.log('ML5 version:', window.ml5.version)
+					const modelPath = '/models/gothic'
 
-				poem.push(generateOpeningLine())
+					if (!window.ml5.charRNN) {
+						console.error('charRNN not found in ml5')
+						setPoem('Error: Model not available')
+						return
+					}
 
-				for (let i = 0; i < numLines - 2; i++) {
-					poem.push(generateLine())
+					const rnn = await window.ml5.charRNN(modelPath, () => {
+						console.log('Model loaded successfully')
+						setModelLoaded(true)
+					})
+
+					setCharRNN(rnn)
+				} catch (error) {
+					console.error('Error initializing model:', error)
+					setPoem('Error: Could not initialize the model')
 				}
+			}
 
-				poem.push(generateEndingLine())
-
-				poemElement.innerHTML = poem.join('<br/>')
-			}, 500)
+			initModel()
 		}
+	}, [ml5Loaded])
 
-		function generateOpeningLine() {
-			const patterns = [
-				() => `deep in the ${getRandomElement(gothicNouns)} of endless night,`,
-				() =>
-					`lo! a ${getRandomElement(compliments)} ${getRandomElement(
-						poeticVerbs
-					)} ${getRandomElement(darkImagery)},`,
-				() =>
-					`upon a midnight dreary, a ${getRandomElement(
-						compliments
-					)} bright and cheery,`,
-				() =>
-					`in chambers ${getRandomElement(
-						darkAdjectives
-					)}, where shadows creep,`,
-			]
-			return getRandomElement(patterns)()
-		}
+	const generatePoem = async () => {
+		setIsGenerating(true)
+		setPoem('Summoning dark inspiration...')
 
-		function generateLine() {
-			const patterns = [
-				() =>
-					`a ${getRandomElement(darkAdjectives)} ${getRandomElement(
-						compliments
-					)} ${getRandomElement(poeticVerbs)} with grace,`,
-				() =>
-					`through ${getRandomElement(
-						darkAdjectives
-					)} halls of ${getRandomElement(gothicNouns)} vast,`,
-				() =>
-					`where brilliance dares to ${getRandomElement(
-						poeticVerbs
-					)} and play,`,
-				() =>
-					`in ${getRandomElement(
-						darkAdjectives
-					)} dreams that ${getRandomElement(poeticVerbs)} and sway,`,
-			]
-			return getRandomElement(patterns)()
+		try {
+			if (modelLoaded && charRNN) {
+				const result = await charRNN.generate({
+					seed: 'In shadows deep',
+					temperature: 0.7,
+					length: 100,
+				})
+				setPoem(formatPoem(result.sample))
+			} else {
+				setPoem(generateFallbackPoem())
+			}
+		} catch (error) {
+			console.error('Error generating poem:', error)
+			setPoem(generateFallbackPoem())
+		} finally {
+			setIsGenerating(false)
 		}
+	}
 
-		function generateEndingLine() {
-			const endings = [
-				"till dawn's light breaks the spell at last.",
-				'forever more, or nevermore!',
-				'in darkness sweet, where shadows meet.',
-				'through endless night, a precious sight.',
-				'where hope dwells in gothic spells.',
-				'in darkness deep, such secrets keep.',
-				'and with your light, you shine so bright.',
-				'through every storm, your strength takes flight.',
-				'let your spirit soar, for you are more.',
-			]
-			return getRandomElement(endings)
-		}
-
-		const image = document.getElementById('poemImage')
-		if (image) {
-			image.addEventListener('click', generatePoem)
-		}
-	}, [])
+	const formatPoem = (text) => {
+		return text
+			.split(/[.!?]\s/)
+			.filter((line) => line.length > 0)
+			.map((line) => line.trim())
+			.map((line) => line.charAt(0).toUpperCase() + line.slice(1))
+			.join('\n')
+	}
 
 	return (
 		<>
 			<Head>
-				<title>Bloom</title>
-				{/* No longer needed to link to Google Font as it's being imported via next/font */}
+				<title>bloom</title>
 			</Head>
+
+			<Script
+				src='https://unpkg.com/ml5@0.12.2/dist/ml5.min.js'
+				strategy='beforeInteractive'
+				onLoad={() => setMl5Loaded(true)}
+				onError={(e) => {
+					console.error('Error loading ml5:', e)
+					setPoem('Error: Could not load ML library')
+				}}
+			/>
+
 			<div className={`container ${pixelifySans.className}`}>
 				<Image
 					id='poemImage'
@@ -217,9 +277,14 @@ export default function Home() {
 					width={500}
 					height={500}
 					className='background-image'
+					onClick={generatePoem}
 				/>
 				<div id='poem'>
-					Click the image to summon a whimsical poem of darkness and light...
+					{isGenerating ? (
+						<span className='loading'>Weaving moonlit verses...</span>
+					) : (
+						<pre className='poem-text'>{poem}</pre>
+					)}
 				</div>
 			</div>
 		</>
